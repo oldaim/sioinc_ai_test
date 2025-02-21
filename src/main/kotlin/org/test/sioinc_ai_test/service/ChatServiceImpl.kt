@@ -2,11 +2,18 @@ package org.test.sioinc_ai_test.service
 
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
+import org.test.sioinc_ai_test.constant.RoleType
+import org.test.sioinc_ai_test.constant.SortByCreated
+import org.test.sioinc_ai_test.dto.ChatListRequestDto
+import org.test.sioinc_ai_test.dto.ChatListResponseDto
 import org.test.sioinc_ai_test.dto.ChatRequestDto
 import org.test.sioinc_ai_test.dto.ChatResponseDto
 import org.test.sioinc_ai_test.entity.Chat
@@ -70,11 +77,38 @@ class ChatServiceImpl(
         // 질문: String, 모델: string
         // 응답 Mono<String> 형태
 
-        TODO("시간 남을때 구현")
+
     }
 
-    override fun getAllThread() {
-        TODO("Not yet implemented")
+    override fun getAllThread(dto: ChatListRequestDto): ChatListResponseDto {
+
+        //SecurityContext 로 추후 생성
+        val user = User()
+
+        val pageable = PageRequest.of(
+            dto.page,
+            dto.size,
+            if (dto.sort == SortByCreated.ACS) Sort.by("timestamp").ascending()
+            else Sort.by("timestamp").descending()
+        )
+
+        val chatList: Page<Chat>? = if (user.role == RoleType.MEMBER){
+             user.id?.let { chatRepository.findAllByUserId(userId = it, pageable = pageable) }
+        }else{
+             user.id?.let { chatRepository.findAll(pageable) }
+        }
+
+        val groupedChatList: Map<UUID?, List<Chat>> = chatListGroupedByThreadId(chatList)
+
+        val responseDto = ChatListResponseDto(groupedChatList)
+
+        return responseDto
+    }
+
+    private fun chatListGroupedByThreadId(chatList: Page<Chat>?): Map<UUID?, List<Chat>> {
+
+        return chatList?.groupBy { it.threadId } ?: emptyMap()
+
     }
 
     override fun deleteThread() {

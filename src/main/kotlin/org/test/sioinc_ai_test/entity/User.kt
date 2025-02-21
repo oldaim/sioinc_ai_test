@@ -13,7 +13,7 @@ data class User(
     @Id val id: Long? = null,
     @Column val email: String? = null,
     @Column val name: String? = null,
-    @CreatedDate @Column val timestamp: Timestamp? = null,
+    @Column val timestamp: Timestamp? = null,
     @Column val role: RoleType? = null
 )
 
