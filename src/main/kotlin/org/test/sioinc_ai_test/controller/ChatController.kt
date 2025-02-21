@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.test.sioinc_ai_test.constant.SortByCreated
-import org.test.sioinc_ai_test.dto.ChatListRequestDto
-import org.test.sioinc_ai_test.dto.ChatListResponseDto
-import org.test.sioinc_ai_test.dto.ChatRequestDto
-import org.test.sioinc_ai_test.dto.ChatResponseDto
+import org.test.sioinc_ai_test.dto.*
 import org.test.sioinc_ai_test.service.ChatService
 
 @RestController
@@ -26,7 +23,7 @@ class ChatController(
         @RequestBody(required = true) question: String,
         @RequestBody(required = false) model: String = "gpt-4o",
         @RequestBody(required = false) isStreaming: Boolean = false
-    ): ResponseEntity<ChatResponseDto> {
+    ): ApiResponse<ChatResponseDto> {
 
 
         val requestDto = ChatRequestDto(
@@ -36,7 +33,14 @@ class ChatController(
 
        val result = chatService.createChat(requestDto)
 
-       return ResponseEntity.ok().body(result)
+
+        val response = ApiResponse(
+            code = 200,
+            message = "create",
+            data = result
+        )
+
+       return response
 
     }
 
@@ -45,7 +49,7 @@ class ChatController(
         @RequestParam("page", required = true) page: Int,
         @RequestParam("size", required = true) size: Int,
         @RequestParam("sort", required = true) direction: SortByCreated
-    ): ResponseEntity<ChatListResponseDto> {
+    ): ApiResponse<ChatListResponseDto> {
 
         val requestDto = ChatListRequestDto(
             page = page,
@@ -55,7 +59,13 @@ class ChatController(
 
         val result = chatService.getAllThread(requestDto)
 
-        return ResponseEntity.ok().body(result)
+        val response = ApiResponse(
+            code = 200,
+            message = "list",
+            data = result
+        )
+
+        return response
     }
 
     @DeleteMapping("/delete")
