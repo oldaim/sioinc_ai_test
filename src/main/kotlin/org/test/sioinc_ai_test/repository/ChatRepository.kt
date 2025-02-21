@@ -8,5 +8,4 @@ interface ChatRepository: JpaRepository<Chat, Long> {
 
     fun findAllByThreadId(threadId: UUID): List<Chat>
 
-
 }

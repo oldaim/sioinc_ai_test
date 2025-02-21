@@ -43,7 +43,7 @@ class ChatServiceImpl(
 
         val uuid: UUID = cacheService.getOrPutThreadUUID(user)
 
-        val chatListByThreadId: List<Chat> = chatRepository.getAllChatByThreadId(uuid)
+        val chatListByThreadId: List<Chat> = chatRepository.findAllByThreadId(uuid)
 
         val chatHistory: List<String> = getChatHistory(chatListByThreadId)
 
