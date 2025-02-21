@@ -2,6 +2,7 @@ package org.test.sioinc_ai_test.service
 
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.test.sioinc_ai_test.entity.User
@@ -21,13 +22,13 @@ class CacheServiceImpl(
         private const val TIMEOUT_MINUTES = 30
     }
 
-    override fun getOrPutThreadUUID(user: User): UUID {
+    override fun getOrPutThreadUUID(user: UserDetails): UUID {
 
         val currentThreadCache: Cache? = cacheManager.getCache(USER_CURRENT_THREAD_CACHE)
         val threadTimeCache: Cache? = cacheManager.getCache(THREAD_TIME_CACHE)
         val currentTime: LocalDateTime = LocalDateTime.now()
 
-        val userIdKey: String = user.id.toString()
+        val userIdKey: String = user.username.toString()
         val currentThreadId: UUID? = currentThreadCache?.get(userIdKey)?.get() as? UUID
 
 

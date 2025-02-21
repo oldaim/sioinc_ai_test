@@ -7,15 +7,13 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
 import org.test.sioinc_ai_test.constant.RoleType
 import org.test.sioinc_ai_test.constant.SortByCreated
-import org.test.sioinc_ai_test.dto.ChatListRequestDto
-import org.test.sioinc_ai_test.dto.ChatListResponseDto
-import org.test.sioinc_ai_test.dto.ChatRequestDto
-import org.test.sioinc_ai_test.dto.ChatResponseDto
+import org.test.sioinc_ai_test.dto.*
 import org.test.sioinc_ai_test.entity.Chat
 import org.test.sioinc_ai_test.entity.User
 import org.test.sioinc_ai_test.model.ChatMessage
@@ -27,6 +25,7 @@ import java.util.*
 @Service
 class ChatServiceImpl(
     @Value("\${ai.open-ai.key}") private val apiKey: String,
+    private val userService: UserService,
     private val webClient: WebClient,
     private val cacheService: CacheService,
     private val chatRepository: ChatRepository
@@ -46,7 +45,9 @@ class ChatServiceImpl(
         // ConcurrentMap 으로 임시 구현 해보자
 
         // SecurityContext 에서 가져올거임
-        val user = User()
+        val username: String = SecurityContextHolder.getContext().authentication.name as String
+
+        val user = userService.loadUserByUsername(username) as UserWrapper
 
         val uuid: UUID = cacheService.getOrPutThreadUUID(user)
 
@@ -83,7 +84,9 @@ class ChatServiceImpl(
     override fun getAllThread(dto: ChatListRequestDto): ChatListResponseDto {
 
         //SecurityContext 로 추후 생성
-        val user = User()
+        val username: String = SecurityContextHolder.getContext().authentication.name as String
+
+        val user = userService.loadUserByUsername(username) as UserWrapper
 
         val pageable = PageRequest.of(
             dto.page,
